@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "highagent"
+version = "0.1.0"
+description = "Scan local AI coding agent sessions and generate daily work reports with an LLM"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+highagent = "highagent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
