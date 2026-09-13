@@ -1,5 +1,6 @@
 # HighAgent 项目总览
 
+> GitHub：https://github.com/taiyuexiao/standup-agent （仓库名 standup-agent，包/CLI 名沿用 highagent）
 > 本文件是项目文档的入口：先读这里，再按需读 docs/modules/ 下的模块文档。
 > 更新纪律：每完成一个模块或处理一个变更，当轮更新「变更日志」和受影响的索引条目。
 
@@ -52,6 +53,7 @@
 | 2026-09-13 | 新增 | LLM provider 配置化：deepseek/moonshot/openai 三预设 + model/base_url/key 变量名覆盖；修复 TOML fallback 解析器吃行内注释隐患；25 测试全过 | summarizer、config |
 | 2026-09-13 | 新增 | 全局命令入口：`~/.local/bin/highagent` 符号链接 + zshrc PATH；新增 README.md 作为安装/分发入口 | cli |
 | 2026-09-13 | 修复+新增 | 父子会话归并通用机制（修复 kimi 子代理漏读 bug：消息 210→315）；日报/周报双段式（总结+细节）+ 按类别分组 | collectors、summarizer、renderer |
+| 2026-09-13 | 新增 | 开源发布：GitHub 仓库 taiyuexiao/standup-agent（public，MIT）；README 重写为完整使用说明；推送前脱敏 scrub（sanitizer.md 中的真实密码案例改为泛化描述） | 全部 |
 
 ## 关键问题与解决
 - **「今日」语义**：用户既有今日新开的 session，也有老 session 今日续聊——过滤单位必须是消息级时间戳而非 session 创建时间
