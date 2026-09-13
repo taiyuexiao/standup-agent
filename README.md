@@ -16,7 +16,9 @@
 
 ## 安装
 
-要求：macOS / Linux，Python ≥ 3.9，零第三方依赖。
+要求：macOS / Linux / Windows，Python ≥ 3.9，零第三方依赖。
+
+macOS / Linux：
 
 ```bash
 git clone https://github.com/taiyuexiao/standup-agent.git
@@ -26,6 +28,18 @@ python3 -m venv .venv && .venv/bin/pip install -e .
 # 让 highagent 命令全局可用（任选其一）：
 pipx install .                                                     # 方式一（推荐，如有 pipx）
 ln -sf "$PWD/.venv/bin/highagent" ~/.local/bin/highagent           # 方式二：符号链接（确保 ~/.local/bin 在 PATH）
+```
+
+Windows（PowerShell）：
+
+```powershell
+git clone https://github.com/taiyuexiao/standup-agent.git
+cd standup-agent
+py -m venv .venv; .venv\Scripts\pip install -e .
+
+# 让 highagent 命令全局可用（任选其一）：
+pipx install .                          # 方式一（推荐，如有 pipx）
+# 方式二：把 .venv\Scripts 目录加入 PATH（入口为 highagent.exe）
 ```
 
 ## 三分钟上手
@@ -41,9 +55,11 @@ chmod 600 ~/.config/highagent/.env
 # 3. 生成今天的日报
 highagent report        # → ~/daily-reports/2026-09-13.md
 
-# 4. 安装定时任务：每晚 22:00 自动生成（macOS launchd）
+# 4. 安装定时任务：每晚 22:00 自动生成
 highagent install-cron
 ```
+
+定时任务按平台落到：macOS = launchd（`~/Library/LaunchAgents/com.highagent.daily.plist`）、Linux = crontab（带 `# highagent` 标记行）、Windows = 任务计划程序（任务名 `HighAgentDaily`）。
 
 ## 常用命令
 
@@ -105,6 +121,12 @@ llm_provider = "deepseek"
 - 所有原始数据只读本机文件，零网络探测；只有脱敏后的文本发给配置的 LLM
 - Cursor 数据库里明文的登录 token（`cursorAuth/*`）在解析层就被白名单排除
 - 建议仍留意：日报写给自己看没问题，发出去前扫一眼细节段
+
+## 平台说明
+
+- 各 agent 数据目录按平台解析：Kimi Code / ZCode / Claude Code / Codex 全平台都在用户主目录同名 dotdir；OpenCode 在 Windows 上探测 `%APPDATA%`/`%LOCALAPPDATA%`；Cursor 在 Windows 为 `%APPDATA%\Cursor\...`、Linux 为 `~/.config/Cursor/...`
+- highagent 自身配置/缓存/日志全平台统一放 `~/.config/highagent/` 与 `~/.local/share/highagent/`
+- Windows 上 `.env` 的 0600 权限设置语义有限（NTFS 无 POSIX 权限位），文件内容仍只写本机
 
 ## 开发与文档
 

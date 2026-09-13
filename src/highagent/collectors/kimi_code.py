@@ -15,14 +15,19 @@ SESSIONS_DIR = KIMI_ROOT / "sessions"
 _NOISE_ORIGINS = {"injection", "skill_activation", "task"}
 
 
+def default_root(home: Path = None) -> Path:
+    # Windows 上同样在用户主目录下的同名 dotdir
+    return (home or Path.home()) / ".kimi-code"
+
+
 class KimiCodeCollector(Collector):
     name = "kimi_code"
 
-    def __init__(self, root: Path = KIMI_ROOT):
+    def __init__(self, root: Path = None):
         super().__init__()
-        self.root = root
-        self.index_path = root / "session_index.jsonl"
-        self.sessions_dir = root / "sessions"
+        self.root = root or default_root()
+        self.index_path = self.root / "session_index.jsonl"
+        self.sessions_dir = self.root / "sessions"
 
     def collect(self) -> List[Message]:
         messages: List[Message] = []

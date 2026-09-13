@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Callable, List, Tuple
 
 from highagent import collectors
+from highagent.collectors import claude_code, codex, cursor, kimi_code, opencode, zcode
 from highagent.config import CONFIG_PATH, ENV_PATH
 
 Probe = Callable[[], Tuple[bool, str]]
@@ -22,47 +23,39 @@ def _probe(name: str, description: str):
 
 @_probe("kimi_code", "Kimi Code")
 def _probe_kimi_code() -> Tuple[bool, str]:
-    root = Path.home() / ".kimi-code" / "sessions"
+    root = kimi_code.default_root() / "sessions"
     count = len(list(root.glob("wd_*/session_*"))) if root.is_dir() else 0
     return count > 0, "检测到 %d 个会话" % count if count else "未发现会话目录"
 
 
 @_probe("zcode", "ZCode")
 def _probe_zcode() -> Tuple[bool, str]:
-    db = Path.home() / ".zcode" / "cli" / "db" / "db.sqlite"
+    db = zcode.default_db_path()
     return db.is_file(), "检测到 db.sqlite" if db.is_file() else "未发现 db.sqlite"
 
 
 @_probe("opencode", "OpenCode")
 def _probe_opencode() -> Tuple[bool, str]:
-    db = Path.home() / ".local" / "share" / "opencode" / "opencode.db"
+    db = opencode.default_db_path()
     return db.is_file(), "检测到 opencode.db" if db.is_file() else "未发现 opencode.db"
 
 
 @_probe("cursor", "Cursor")
 def _probe_cursor() -> Tuple[bool, str]:
-    db = (
-        Path.home()
-        / "Library"
-        / "Application Support"
-        / "Cursor"
-        / "User"
-        / "globalStorage"
-        / "state.vscdb"
-    )
+    db = cursor.default_db_path()
     return db.is_file(), "检测到 state.vscdb" if db.is_file() else "未发现 state.vscdb"
 
 
 @_probe("claude_code", "Claude Code")
 def _probe_claude_code() -> Tuple[bool, str]:
-    root = Path.home() / ".claude" / "projects"
+    root = claude_code.default_root()
     count = len(list(root.glob("**/*.jsonl"))) if root.is_dir() else 0
     return count > 0, "检测到 %d 个会话文件" % count if count else "未发现 projects 目录"
 
 
 @_probe("codex", "Codex")
 def _probe_codex() -> Tuple[bool, str]:
-    root = Path.home() / ".codex" / "sessions"
+    root = codex.default_root() / "sessions"
     count = len(list(root.glob("**/*.jsonl"))) if root.is_dir() else 0
     return count > 0, "检测到 %d 个会话文件" % count if count else "未发现 sessions 目录"
 

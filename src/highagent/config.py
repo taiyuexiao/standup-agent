@@ -149,4 +149,5 @@ def write_env_file(key: str, value: str, path: Path = ENV_PATH) -> Path:
     with os.fdopen(fd, "w", encoding="utf-8") as handle:
         handle.write("\n".join(lines) + "\n")
     os.chmod(str(path), 0o600)
+    # Windows 上 chmod 语义有限（仅只读位生效），属无害调用，保留以兼容 POSIX
     return path

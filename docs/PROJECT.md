@@ -54,6 +54,7 @@
 | 2026-09-13 | 新增 | 全局命令入口：`~/.local/bin/highagent` 符号链接 + zshrc PATH；新增 README.md 作为安装/分发入口 | cli |
 | 2026-09-13 | 修复+新增 | 父子会话归并通用机制（修复 kimi 子代理漏读 bug：消息 210→315）；日报/周报双段式（总结+细节）+ 按类别分组 | collectors、summarizer、renderer |
 | 2026-09-13 | 新增 | 开源发布：GitHub 仓库 taiyuexiao/standup-agent（public，MIT）；README 重写为完整使用说明；推送前脱敏 scrub（sanitizer.md 中的真实密码案例改为泛化描述） | 全部 |
+| 2026-09-13 | 新增 | Windows/Linux 支持：定时任务三平台分发（launchd/crontab/schtasks）、collector 路径平台分支、README Windows 安装说明；47 测试全过（Windows/Linux 分支 mock 验证，未实机） | cli、collectors |
 
 ## 关键问题与解决
 - **「今日」语义**：用户既有今日新开的 session，也有老 session 今日续聊——过滤单位必须是消息级时间戳而非 session 创建时间

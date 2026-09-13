@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -10,15 +12,21 @@ from highagent.collectors.base import Collector
 from highagent.collectors.sqlite_base import connect_readonly, table_exists
 from highagent.models import Message
 
-DEFAULT_DB = (
-    Path.home()
-    / "Library"
-    / "Application Support"
-    / "Cursor"
-    / "User"
-    / "globalStorage"
-    / "state.vscdb"
-)
+
+def default_db_path(platform: str = None, environ=None, home: Path = None) -> Path:
+    """cursor state.vscdb 路径：macOS 在 ~/Library，Windows 在 %APPDATA%，Linux 在 ~/.config。"""
+    platform = platform or sys.platform
+    environ = os.environ if environ is None else environ
+    home = home or Path.home()
+    if platform == "win32":
+        base = environ.get("APPDATA") or str(home / "AppData" / "Roaming")
+        return Path(base) / "Cursor" / "User" / "globalStorage" / "state.vscdb"
+    if platform == "darwin":
+        return (
+            home / "Library" / "Application Support" / "Cursor"
+            / "User" / "globalStorage" / "state.vscdb"
+        )
+    return home / ".config" / "Cursor" / "User" / "globalStorage" / "state.vscdb"
 
 _BUBBLE_PREFIX = "bubbleId:"
 _AUTH_PREFIX = "cursorAuth/"
@@ -38,7 +46,7 @@ class CursorCollector(Collector):
 
     def __init__(self, db_path: Path = None):
         super().__init__()
-        self.db_path = db_path or DEFAULT_DB
+        self.db_path = db_path or default_db_path()
 
     def _open(self) -> Optional[sqlite3.Connection]:
         if not self.db_path.is_file():

@@ -50,6 +50,7 @@
 - zcode 数据模型（2026-09-13 实证）：**session 表不是全集**（可能只有部分顶层会话），message 表的 `session_id` 分组才是；subagent 会话命名 `sess_subagent_agent_*`，父子关系体现在 `~/.zcode/cli/agents/sess_<父>/agent_<子>/transcript.jsonl` 目录结构；UI 只显示顶层会话，collector 摊平后会出现"用户看不到的 session"（如 1 次调研 = 1 主 + 3 子）；`directory` 字段实测为 `default`，无法作项目归属
 - ⚠️ 手动查 zcode 库时必须复制 WAL 再读，直接 `mode=ro` 连活库会丢最新数据（曾因此误判 session 表只有 1 行）
 - 所有 collector 对「目录/库不存在」优雅返回空（用户可能没装某 agent）
+- 路径平台适配（2026-09-13）：每家抽 `default_root/default_db_path(home, platform, environ)` 小函数；kimi/zcode/claude/codex 主目录 dotdir 天然跨平台；opencode Windows 探测 `%APPDATA%`→`%LOCALAPPDATA%`；cursor 三分支（darwin `~/Library/Application Support/`、win32 `%APPDATA%`、linux `~/.config/`）；init 探针复用同一组函数
 
 ## Bug 与问题记录
 
