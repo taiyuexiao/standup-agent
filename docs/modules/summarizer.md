@@ -32,6 +32,7 @@
 - 两层结构 = LLM 调用量翻倍，用户已接受（DeepSeek 成本低）
 - M4 日级 prompt 收敛规则：明日计划 ≤8 条且与今日完成不重复；问题 ≤10 条按严重程度排，未解决的必须保留并排前（哪怕超条数）
 - 周报（M4）：聚合已生成的日报文件而非原始会话（两级汇总的第二级）；聚合前再过一遍 sanitize_text 防御手工编辑；周报同样 ≤8/≤10 收敛规则
+- 月报（`monthly.py`，2026-09-13）：同模式聚合当月日报 → `monthly-YYYY-MM.md`；MONTH prompt 复用周报收敛规则；weekly/monthly 共用 `collect_reports_in_range`
 - **报告双段式 + 类别分组（2026-09-13 需求）**：每段拆「总结」（领导视角：按工作类别聚块、无技术细节）+「细节」（复盘用：现有粒度）；条目带 `category` 字段（LLM 按语义定，可参考但不限于消息的 project 字段）；收敛规则作用于 details。模型：`ReportSection(summary, details)` / `DetailItem(category, text)`；解析防御式（兼容 LLM 返回纯字符串数组）
 
 ## Bug 与问题记录

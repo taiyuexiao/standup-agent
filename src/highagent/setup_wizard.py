@@ -73,8 +73,9 @@ def _ask(question: str, default: bool, assume_yes: bool) -> bool:
     return answer in ("y", "yes")
 
 
-def _config_toml(enabled: List[str]) -> str:
+def _config_toml(enabled: List[str], remainder_sync: bool = False) -> str:
     agents = ", ".join('"%s"' % a for a in enabled)
+    sync_value = "true" if remainder_sync else "false"
     return (
         "enabled_agents = [%s]\n"
         "day_start_hour = 0\n"
@@ -86,7 +87,10 @@ def _config_toml(enabled: List[str]) -> str:
         "# 以下三项可选，覆盖预设值\n"
         '# llm_model = "deepseek-chat"\n'
         '# llm_base_url = "https://api.deepseek.com"\n'
-        '# llm_api_key_env = "DEEPSEEK_API_KEY"\n' % agents
+        '# llm_api_key_env = "DEEPSEEK_API_KEY"\n'
+        "# Remainder 同步：生成报告后推送到本机 Remainder 应用\n"
+        "remainder_sync = %s\n"
+        '# remainder_url = "http://127.0.0.1:3210"\n' % (agents, sync_value)
     )
 
 
@@ -119,8 +123,12 @@ def run_init(assume_yes: bool) -> int:
         print("未启用任何 agent，未写入配置。")
         return 0
 
+    remainder_sync = _ask(
+        "是否在生成报告后同步到本机 Remainder 应用？", False, assume_yes
+    )
+
     CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    CONFIG_PATH.write_text(_config_toml(enabled), encoding="utf-8")
+    CONFIG_PATH.write_text(_config_toml(enabled, remainder_sync), encoding="utf-8")
     print("配置已写入 %s：\n%s" % (CONFIG_PATH, CONFIG_PATH.read_text(encoding="utf-8")))
     print(
         "提醒：请设置环境变量 DEEPSEEK_API_KEY；如需定时任务可用，"

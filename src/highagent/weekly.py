@@ -26,14 +26,14 @@ def weekly_filename(day: date) -> str:
     return "weekly-%s.md" % week_label(day)
 
 
-def collect_daily_reports(
-    reports_dir: Path, monday: date
+def collect_reports_in_range(
+    reports_dir: Path, start: date, days: int
 ) -> Tuple[List[Tuple[date, str]], List[date]]:
-    """收集周一到周日已有的日报；返回 (found, missing)，found 按日期升序。"""
+    """收集 start 起 days 天内已有的日报；返回 (found, missing)，found 按日期升序。"""
     found: List[Tuple[date, str]] = []
     missing: List[date] = []
-    for offset in range(7):
-        day = monday + timedelta(days=offset)
+    for offset in range(days):
+        day = start + timedelta(days=offset)
         path = reports_dir / ("%s.md" % day.isoformat())
         if path.is_file():
             text = path.read_text(encoding="utf-8").strip()
@@ -44,6 +44,13 @@ def collect_daily_reports(
         else:
             missing.append(day)
     return found, missing
+
+
+def collect_daily_reports(
+    reports_dir: Path, monday: date
+) -> Tuple[List[Tuple[date, str]], List[date]]:
+    """收集周一到周日已有的日报；返回 (found, missing)，found 按日期升序。"""
+    return collect_reports_in_range(reports_dir, monday, 7)
 
 
 def summarize_week(

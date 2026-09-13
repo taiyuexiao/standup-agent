@@ -10,12 +10,26 @@ from highagent.config import CONFIG_PATH, default_config_toml, load_config, outp
 from highagent.cron import run_install_cron, run_uninstall_cron
 from highagent.extractor import filter_by_day, group_by_session
 from highagent.models import DailyReport
-from highagent.renderer import write_report, write_weekly_report
+from highagent.monthly import (
+    collect_monthly_reports,
+    month_bounds,
+    month_label,
+    monthly_filename,
+    summarize_month,
+)
+from highagent.reminder_sync import sync_report
+from highagent.renderer import write_monthly_report, write_report, write_weekly_report
 from highagent.sanitizer import SanitizeStats
 from highagent.setup_wizard import run_init
 from highagent.store import Store
 from highagent.summarizer import LLMError, get_provider, summarize_day, summarize_session
-from highagent.weekly import collect_daily_reports, summarize_week, week_bounds, weekly_filename
+from highagent.weekly import (
+    collect_daily_reports,
+    summarize_week,
+    week_bounds,
+    week_label,
+    weekly_filename,
+)
 
 
 def _parse_date(raw: str) -> date:
@@ -45,6 +59,11 @@ def build_parser() -> argparse.ArgumentParser:
     weekly.add_argument("--date", type=_parse_date, default=date.today(), help="周内任意一天 YYYY-MM-DD，默认今天所在周（周一为起点）")
     weekly.add_argument("--force", action="store_true", help="周报已存在时强制覆盖")
     weekly.add_argument("--dry-run", action="store_true", help="只列出会聚合哪些日报，不调用 LLM")
+
+    monthly = sub.add_parser("monthly", help="聚合本月已有日报生成月报")
+    monthly.add_argument("--date", type=_parse_date, default=date.today(), help="月内任意一天 YYYY-MM-DD，默认今天所在月")
+    monthly.add_argument("--force", action="store_true", help="月报已存在时强制覆盖")
+    monthly.add_argument("--dry-run", action="store_true", help="只列出会聚合哪些日报，不调用 LLM")
 
     cron = sub.add_parser("install-cron", help="安装 launchd 定时任务（每天 22:00 生成日报）")
     cron.add_argument("--yes", action="store_true", help="非交互模式：全部按默认")
@@ -164,6 +183,7 @@ def cmd_report(args) -> int:
     path = write_report(report, output_dir(config), args.output)
     store.record_run(args.date, path, len(sessions), len(todays))
     print("日报已生成：%s" % path)
+    _maybe_sync(config, "daily", args.date.isoformat(), path)
     return 0
 
 
@@ -201,7 +221,54 @@ def cmd_weekly(args) -> int:
         print("脱敏：%s" % stats.format())
     path = write_weekly_report(report, reports_dir, [d for d, _ in found], missing)
     print("周报已生成：%s" % path)
+    _maybe_sync(config, "weekly", monday.isoformat(), path, label=week_label(args.date))
     return 0
+
+
+def cmd_monthly(args) -> int:
+    config = load_config()
+    first, last = month_bounds(args.date)
+    reports_dir = output_dir(config)
+    target = reports_dir / monthly_filename(args.date)
+    print("月范围：%s ~ %s" % (first.isoformat(), last.isoformat()))
+
+    if target.exists() and not args.force and not args.dry_run:
+        print("月报已存在：%s（使用 --force 强制覆盖）" % target)
+        return 0
+
+    found, missing = collect_monthly_reports(reports_dir, first)
+    for day, _text in found:
+        print("  聚合 %s 日报" % day.isoformat())
+    if missing:
+        print("  跳过 %d 天（无日报）" % len(missing))
+    if not found:
+        print("本月没有任何日报，未生成月报。")
+        return 0
+    if args.dry_run:
+        print("dry-run：将聚合 %d 份日报 -> %s" % (len(found), target))
+        return 0
+
+    provider = get_provider(config.llm_provider, config)
+    stats = SanitizeStats()
+    try:
+        report = summarize_month(provider, first, found, config.sanitize, stats)
+    except LLMError as exc:
+        print("LLM 调用失败：%s" % exc, file=sys.stderr)
+        return 1
+    if config.sanitize and stats.total:
+        print("脱敏：%s" % stats.format())
+    path = write_monthly_report(report, reports_dir, [d for d, _ in found], len(missing))
+    print("月报已生成：%s" % path)
+    _maybe_sync(config, "monthly", month_label(args.date), path)
+    return 0
+
+
+def _maybe_sync(config, report_type: str, date_str: str, path: Path, label: str = None) -> None:
+    if not config.remainder_sync:
+        return
+    sync_report(
+        config.remainder_url, report_type, date_str, path.read_text(encoding="utf-8"), label
+    )
 
 
 def main(argv=None) -> int:
@@ -210,6 +277,8 @@ def main(argv=None) -> int:
         return cmd_report(args)
     if args.command == "weekly":
         return cmd_weekly(args)
+    if args.command == "monthly":
+        return cmd_monthly(args)
     if args.command == "init":
         return run_init(args.yes)
     if args.command == "install-cron":

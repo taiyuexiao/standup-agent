@@ -4,7 +4,7 @@ from datetime import date
 from pathlib import Path
 from typing import List, Tuple
 
-from highagent.models import DailyReport, DetailItem, ReportSection, WeeklyReport
+from highagent.models import DailyReport, DetailItem, MonthlyReport, ReportSection, WeeklyReport
 
 _EMPTY = "（无）"
 
@@ -101,4 +101,41 @@ def write_weekly_report(
     path = output_dir / ("weekly-%s.md" % report.week_label)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(render_weekly_markdown(report, included, missing), encoding="utf-8")
+    return path
+
+
+def render_monthly_markdown(
+    report: MonthlyReport, included: List[date], missing_count: int
+) -> str:
+    header = [
+        "# 月报 %s（%s ~ %s）" % (report.month_label, report.first_day, report.last_day),
+        "",
+        "聚合日报：%d 天（%s）"
+        % (len(included), "、".join(d.isoformat() for d in included)),
+    ]
+    if missing_count:
+        header.append("无日报跳过：%d 天" % missing_count)
+    parts = header + [
+        "",
+        _render_section("本月工作/学习概览", report.overview),
+        "",
+        _render_section("下月计划", report.next_month),
+        "",
+        _render_section("本月遇到的问题", report.problems),
+        "",
+    ]
+    return "\n".join(parts)
+
+
+def write_monthly_report(
+    report: MonthlyReport,
+    output_dir: Path,
+    included: List[date],
+    missing_count: int,
+) -> Path:
+    path = output_dir / ("monthly-%s.md" % report.month_label)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        render_monthly_markdown(report, included, missing_count), encoding="utf-8"
+    )
     return path

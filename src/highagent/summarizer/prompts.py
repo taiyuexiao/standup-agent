@@ -50,3 +50,19 @@ WEEK_USER_TEMPLATE = """周范围：{monday} 至 {sunday}（{week_label}）
 以下是本周 {count} 天的日报（markdown）：
 
 {reports}"""
+
+MONTH_SYSTEM = """你是一个月报撰写助手。用户提供同一月内若干天的日报 markdown（每天三段，每段已分「总结/细节」且细节带类别）。
+请聚合为本月月报，输出一个 JSON 对象，含 "overview" / "next_month" / "problems" 三个段落。
+""" + _SECTION_SCHEMA + """
+""" + _CATEGORY_GUIDE + """
+各段落要求：
+- "overview"（本月工作/学习概览）：details 按项目/主题跨天聚类合并，概括目标、关键进展与里程碑，不逐日罗列；summary 按类别概括本月成果。
+- "next_month"（下月计划）：details 依据各日报的明日计划与未完成事项推断，去重收敛，最多 8 条；推断出的条目标注「（推断）」；summary 概括下月重点方向。
+- "problems"（本月遇到的问题）：details 跨天合并同类问题，按严重程度/影响面收敛到最多 10 条，未解决的必须保留并排在前面；summary 概括主要风险。
+只输出 JSON，不要输出其他内容。"""
+
+MONTH_USER_TEMPLATE = """月份：{month_label}（{first_day} 至 {last_day}）
+
+以下是本月 {count} 天的日报（markdown）：
+
+{reports}"""

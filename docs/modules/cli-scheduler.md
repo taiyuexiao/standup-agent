@@ -15,7 +15,7 @@
 - 下游：用户
 
 ## 关键接口与运行时信息
-- 关键文件：`src/highagent/cli.py`（子命令：`report [--date] [--agents] [--output] [--dry-run] [--force]`、`weekly [--date] [--force] [--dry-run]`、`init [--yes]`、`install-cron`、`uninstall-cron`）、`src/highagent/config.py`、`src/highagent/setup_wizard.py`、`src/highagent/cron.py`、`src/highagent/weekly.py`
+- 关键文件：`src/highagent/cli.py`（子命令：`report [--date] [--agents] [--output] [--dry-run] [--force]`、`weekly [--date] [--force] [--dry-run]`、`monthly [--date] [--force] [--dry-run]`、`init [--yes]`、`install-cron`、`uninstall-cron`）、`src/highagent/config.py`、`src/highagent/setup_wizard.py`、`src/highagent/cron.py`、`src/highagent/weekly.py`、`src/highagent/monthly.py`、`src/highagent/reminder_sync.py`（生成后推送 Remainder，见 modules/remainder-sync.md）
 - 配置：`~/.config/highagent/config.toml`，含 `enabled_agents`（按需启用、随时增删）、`day_start_hour`、`output_dir`、`max_session_chars`、`sanitize`、`llm_provider`/`llm_model`/`llm_base_url`/`llm_api_key_env`（LLM 预设 deepseek/moonshot/openai + 覆盖）；配置不存在时默认启用 kimi_code 并提示
 - 安装：项目内 `.venv`（系统 Python 仅 3.9.6，见「设计决策」），`pip install -e .` 需走 venv；全局入口：`~/.local/bin/highagent` 符号链接指向 `.venv/bin/highagent`（已加入 ~/.zshrc 的 PATH；注意项目目录移动后需重建链接）
 - API key 三级读取：环境变量 `DEEPSEEK_API_KEY` → `~/.config/highagent/.env`（0600 权限，供 cron 无 shell 环境使用）→ 报错；install-cron 时可选把 key 写入 .env，不写 plist（plist 明文有泄露风险）

@@ -30,7 +30,8 @@
 | renderer | [modules/renderer.md](modules/renderer.md) | ✅ | 三段式 markdown 日报渲染 |
 | store | [modules/store.md](modules/store.md) | ✅ | SQLite 薄缓存：session 摘要按内容指纹复用 |
 | sanitizer | [modules/sanitizer.md](modules/sanitizer.md) | ✅ | LLM 输入侧脱敏：key/token/密码/私钥 → 占位符 |
-| cli+scheduler | [modules/cli-scheduler.md](modules/cli-scheduler.md) | ✅ | report/init/install-cron 全实现；launchd 每晚 22:00 已安装 |
+| remainder-sync | [modules/remainder-sync.md](modules/remainder-sync.md) | ✅ | 生成后 HTTP 幂等推送到 Remainder 报告栏目 |
+| cli+scheduler | [modules/cli-scheduler.md](modules/cli-scheduler.md) | ✅ | report/weekly/monthly/init/install-cron 全实现；每晚 22:00 定时（三平台） |
 
 状态约定：🚧 开发中 / ✅ 稳定 / ⚠️ 有已知问题 / 🗑 已废弃 / ⬜ 未开始
 
@@ -55,6 +56,7 @@
 | 2026-09-13 | 修复+新增 | 父子会话归并通用机制（修复 kimi 子代理漏读 bug：消息 210→315）；日报/周报双段式（总结+细节）+ 按类别分组 | collectors、summarizer、renderer |
 | 2026-09-13 | 新增 | 开源发布：GitHub 仓库 taiyuexiao/standup-agent（public，MIT）；README 重写为完整使用说明；推送前脱敏 scrub（sanitizer.md 中的真实密码案例改为泛化描述） | 全部 |
 | 2026-09-13 | 新增 | Windows/Linux 支持：定时任务三平台分发（launchd/crontab/schtasks）、collector 路径平台分支、README Windows 安装说明；47 测试全过（Windows/Linux 分支 mock 验证，未实机） | cli、collectors |
+| 2026-09-13 | 新增 | monthly 月报（聚合当月日报）+ Remainder 集成：remainder-sync 推送模块（幂等、未运行优雅跳过），与 Remainder M35 双侧端到端验证并部署到安装版（server dist + 重打包 .app）；60 测试全过 | summarizer、renderer、cli、remainder-sync |
 
 ## 关键问题与解决
 - **「今日」语义**：用户既有今日新开的 session，也有老 session 今日续聊——过滤单位必须是消息级时间戳而非 session 创建时间

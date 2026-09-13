@@ -67,3 +67,13 @@ class WeeklyReport:
     overview: ReportSection = field(default_factory=ReportSection)
     next_week: ReportSection = field(default_factory=ReportSection)
     problems: ReportSection = field(default_factory=ReportSection)
+
+
+@dataclass
+class MonthlyReport:
+    month_label: str
+    first_day: str
+    last_day: str
+    overview: ReportSection = field(default_factory=ReportSection)
+    next_month: ReportSection = field(default_factory=ReportSection)
+    problems: ReportSection = field(default_factory=ReportSection)

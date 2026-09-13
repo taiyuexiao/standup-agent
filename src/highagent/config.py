@@ -24,6 +24,8 @@ class Config:
     llm_model: str = ""
     llm_base_url: str = ""
     llm_api_key_env: str = ""
+    remainder_sync: bool = False
+    remainder_url: str = "http://127.0.0.1:3210"
     path: Path = field(default=CONFIG_PATH)
     existed: bool = False
 
@@ -104,6 +106,12 @@ def load_config(path: Path = CONFIG_PATH) -> Config:
         value = data.get(key)
         if isinstance(value, str) and value.strip():
             setattr(config, key, value.strip())
+    remainder_sync = data.get("remainder_sync")
+    if isinstance(remainder_sync, bool):
+        config.remainder_sync = remainder_sync
+    remainder_url = data.get("remainder_url")
+    if isinstance(remainder_url, str) and remainder_url.strip():
+        config.remainder_url = remainder_url.strip()
     return config
 
 
@@ -120,6 +128,9 @@ def default_config_toml() -> str:
         '# llm_model = "deepseek-chat"\n'
         '# llm_base_url = "https://api.deepseek.com"\n'
         '# llm_api_key_env = "DEEPSEEK_API_KEY"\n'
+        "# Remainder 同步：生成报告后推送到本机 Remainder 应用\n"
+        "remainder_sync = false\n"
+        '# remainder_url = "http://127.0.0.1:3210"\n'
     )
 
 
