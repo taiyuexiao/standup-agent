@@ -9,6 +9,7 @@ from highagent.collectors import (
     codex,
     cursor,
     kimi_code,
+    kimi_work,
     opencode,
     qwen_work,
     workbuddy,
@@ -79,6 +80,13 @@ def _probe_workbuddy() -> Tuple[bool, str]:
 def _probe_qwen_work() -> Tuple[bool, str]:
     db = qwen_work.default_db_path()
     return db.is_file(), "检测到 agents.db" if db.is_file() else "未发现 agents.db"
+
+
+@_probe("kimi_work", "Kimi Work（桌面端）")
+def _probe_kimi_work() -> Tuple[bool, str]:
+    root = kimi_work.default_root() / "sessions"
+    count = len(list(root.glob("wd_*/conv-*"))) if root.is_dir() else 0
+    return count > 0, "检测到 %d 个会话" % count if count else "未发现桌面端会话目录"
 
 
 def _ask(question: str, default: bool, assume_yes: bool) -> bool:

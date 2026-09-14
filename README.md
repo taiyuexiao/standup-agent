@@ -2,7 +2,7 @@
 
 每天下班不用再回忆"我今天到底干了啥"。standup-agent 扫描你本机各个 AI coding agent 的当日会话记录，用 LLM 自动生成工作日报/周报（markdown）。
 
-支持的会话来源：**Kimi Code、ZCode、OpenCode、Cursor、Claude Code、Codex、WorkBuddy、千问办公（QwenWork）**
+支持的会话来源：**Kimi Code、Kimi Work（桌面端）、ZCode、OpenCode、Cursor、Claude Code、Codex、WorkBuddy、千问办公（QwenWork）**
 
 > 豆包不支持：本地无对话正文存储，拿不到会话内容。
 
@@ -80,7 +80,7 @@ highagent uninstall-cron             # 卸载定时任务
 ## 配置（`~/.config/highagent/config.toml`）
 
 ```toml
-# 启用哪些数据源：kimi_code / zcode / opencode / cursor / claude_code / codex / workbuddy / qwen_work
+# 启用哪些数据源：kimi_code / kimi_work / zcode / opencode / cursor / claude_code / codex / workbuddy / qwen_work
 enabled_agents = ["kimi_code"]
 
 day_start_hour = 0            # 日界：默认 0 点；设 3 则凌晨 3 点前算"昨天"

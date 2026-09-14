@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Iterator, List, Optional
@@ -12,7 +13,8 @@ KIMI_ROOT = Path.home() / ".kimi-code"
 SESSION_INDEX = KIMI_ROOT / "session_index.jsonl"
 SESSIONS_DIR = KIMI_ROOT / "sessions"
 
-_NOISE_ORIGINS = {"injection", "skill_activation", "task"}
+_ATTACHMENT_RE = re.compile(r"<attachment>.*?</attachment>", re.DOTALL)
+_META_PREFIX_RE = re.compile(r"^<meta [^>]*/>\s*")
 
 
 def default_root(home: Path = None) -> Path:
@@ -22,6 +24,10 @@ def default_root(home: Path = None) -> Path:
 
 class KimiCodeCollector(Collector):
     name = "kimi_code"
+    noise_origins = frozenset({"injection", "skill_activation", "task"})
+    skip_session_prefixes: tuple = ()
+    strip_attachments = False
+    strip_meta_prefix = False
 
     def __init__(self, root: Path = None):
         super().__init__()
@@ -39,6 +45,8 @@ class KimiCodeCollector(Collector):
     def session_titles(self) -> Dict[str, str]:
         titles: Dict[str, str] = {}
         for session_dir in self._session_dirs():
+            if session_dir.name.startswith(self.skip_session_prefixes):
+                continue
             state = session_dir / "state.json"
             if not state.is_file():
                 continue
@@ -48,7 +56,7 @@ class KimiCodeCollector(Collector):
                 continue
             title = data.get("title")
             if isinstance(title, str) and title:
-                titles[session_dir.name] = title
+                titles[session_dir.name] = _META_PREFIX_RE.sub("", title).strip() or title
         return titles
 
     def _session_dirs(self) -> Iterator[Path]:
@@ -67,13 +75,15 @@ class KimiCodeCollector(Collector):
                     seen.add(session_dir)
                     yield session_dir
         if self.sessions_dir.is_dir():
-            for wire in sorted(self.sessions_dir.glob("wd_*/session_*/agents/*/wire.jsonl")):
+            for wire in sorted(self.sessions_dir.glob("wd_*/*/agents/*/wire.jsonl")):
                 session_dir = wire.parents[2]
                 if session_dir not in seen:
                     seen.add(session_dir)
                     yield session_dir
 
     def _parse_session(self, session_dir: Path) -> List[Message]:
+        if session_dir.name.startswith(self.skip_session_prefixes):
+            return []
         agents_dir = session_dir / "agents"
         if not agents_dir.is_dir():
             return []
@@ -119,10 +129,14 @@ class KimiCodeCollector(Collector):
         if event_type == "context.append_message":
             body = event.get("message") or {}
             origin = (body.get("origin") or {}).get("kind", "user")
-            if body.get("role") != "user" or origin in _NOISE_ORIGINS:
+            if body.get("role") != "user" or origin in self.noise_origins:
                 return None
             role = "user"
             text = _parts_text(body.get("content"))
+            if self.strip_attachments:
+                text = _ATTACHMENT_RE.sub("", text)
+            if self.strip_meta_prefix:
+                text = _META_PREFIX_RE.sub("", text.strip())
             dedupe_key = ("msg", body.get("id"))
         elif event_type == "context.append_loop_event":
             loop_event = event.get("event") or {}
@@ -159,11 +173,12 @@ class KimiCodeCollector(Collector):
         state = session_dir / "state.json"
         if state.is_file():
             try:
-                cwd = json.loads(state.read_text(encoding="utf-8")).get("cwd", "")
+                data = json.loads(state.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):
-                cwd = ""
-            if cwd:
-                return Path(cwd).name or cwd
+                data = {}
+            workdir = data.get("workDir") or data.get("cwd") or ""
+            if workdir:
+                return Path(workdir).name or workdir
         parent = session_dir.parent.name
         if parent.startswith("wd_"):
             return parent[3:].rsplit("_", 1)[0]

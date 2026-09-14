@@ -28,6 +28,7 @@
 | agent | 路径 | 格式 | 时间字段 | 本机数据 |
 |---|---|---|---|---|
 | kimi_code | `~/.kimi-code/sessions/wd_*/session_*/agents/main/wire.jsonl` | JSONL，16 种事件类型 | 毫秒 epoch（`time`/`createdAt`） | ✅ 6 会话 |
+| kimi_work | `~/Library/Application Support/kimi-desktop/daimon-share/daimon/runtime/kimi-code/home/`（Kimi 桌面端 Kimi Work 模式的内嵌独立 home，与 CLI 零重叠） | 同 kimi_code 的 wire.jsonl | 毫秒 epoch | ✅ 4 会话（ctitle-* 旁路已过滤） |
 | workbuddy | `~/.workbuddy/projects/<工作区>/<session-id>.jsonl` + `workbuddy.db`（标题） | JSONL（OpenAI Responses 风格） | `timestamp` 毫秒 epoch | ✅ 1 会话（09-14 活跃） |
 | 千问办公 qwen_work | `~/Library/Application Support/QwenWorkCN/data/agents.db` | SQLite（drizzle：chats/messages/projects） | 毫秒 epoch（待实测） | ❌ 零对话数据 |
 | 豆包 | IndexedDB LevelDB（只有会话标题列表，无正文无时间戳） | — | — | ❌ **不支持**（正文在服务端） |

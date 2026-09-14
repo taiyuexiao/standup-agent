@@ -58,6 +58,7 @@
 | 2026-09-13 | 新增 | Windows/Linux 支持：定时任务三平台分发（launchd/crontab/schtasks）、collector 路径平台分支、README Windows 安装说明；47 测试全过（Windows/Linux 分支 mock 验证，未实机） | cli、collectors |
 | 2026-09-13 | 新增 | monthly 月报（聚合当月日报）+ Remainder 集成：remainder-sync 推送模块（幂等、未运行优雅跳过），与 Remainder M35 双侧端到端验证并部署到安装版（server dist + 重打包 .app）；60 测试全过 | summarizer、renderer、cli、remainder-sync |
 | 2026-09-14 | 新增 | workbuddy（JSONL 模式，真实数据验证 7 条）+ qwen_work（SQLite 模式，本机零数据容错+夹具）collector；豆包不支持（本地无对话正文）；64 测试全过 | collectors |
+| 2026-09-14 | 新增 | kimi_work collector（KimiWork 桌面端模式）：子类化复用 kimi_code 解析，适配 conv-*/ctitle-* 目录、workDir 键、meta/attachment 剥离、system_trigger 噪声；真实数据验证 4 会话 141 条、与 kimi_code 零重叠；67 测试全过 | collectors |
 
 ## 关键问题与解决
 - **「今日」语义**：用户既有今日新开的 session，也有老 session 今日续聊——过滤单位必须是消息级时间戳而非 session 创建时间
