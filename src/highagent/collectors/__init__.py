@@ -8,6 +8,8 @@ from highagent.collectors.codex import CodexCollector
 from highagent.collectors.cursor import CursorCollector
 from highagent.collectors.kimi_code import KimiCodeCollector
 from highagent.collectors.opencode import OpencodeCollector
+from highagent.collectors.qwen_work import QwenWorkCollector
+from highagent.collectors.workbuddy import WorkbuddyCollector
 from highagent.collectors.zcode import ZcodeCollector
 
 _REGISTRY = {
@@ -17,6 +19,8 @@ _REGISTRY = {
     CursorCollector.name: CursorCollector,
     ClaudeCodeCollector.name: ClaudeCodeCollector,
     CodexCollector.name: CodexCollector,
+    WorkbuddyCollector.name: WorkbuddyCollector,
+    QwenWorkCollector.name: QwenWorkCollector,
 }
 
 

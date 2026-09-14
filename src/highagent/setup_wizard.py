@@ -1,11 +1,19 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from typing import Callable, List, Tuple
 
 from highagent import collectors
-from highagent.collectors import claude_code, codex, cursor, kimi_code, opencode, zcode
+from highagent.collectors import (
+    claude_code,
+    codex,
+    cursor,
+    kimi_code,
+    opencode,
+    qwen_work,
+    workbuddy,
+    zcode,
+)
 from highagent.config import CONFIG_PATH, ENV_PATH
 
 Probe = Callable[[], Tuple[bool, str]]
@@ -58,6 +66,19 @@ def _probe_codex() -> Tuple[bool, str]:
     root = codex.default_root() / "sessions"
     count = len(list(root.glob("**/*.jsonl"))) if root.is_dir() else 0
     return count > 0, "检测到 %d 个会话文件" % count if count else "未发现 sessions 目录"
+
+
+@_probe("workbuddy", "WorkBuddy")
+def _probe_workbuddy() -> Tuple[bool, str]:
+    root = workbuddy.default_root() / "projects"
+    count = len(list(root.glob("*/*.jsonl"))) if root.is_dir() else 0
+    return count > 0, "检测到 %d 个会话" % count if count else "未发现 projects 目录"
+
+
+@_probe("qwen_work", "千问办公")
+def _probe_qwen_work() -> Tuple[bool, str]:
+    db = qwen_work.default_db_path()
+    return db.is_file(), "检测到 agents.db" if db.is_file() else "未发现 agents.db"
 
 
 def _ask(question: str, default: bool, assume_yes: bool) -> bool:

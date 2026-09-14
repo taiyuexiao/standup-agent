@@ -28,6 +28,9 @@
 | agent | 路径 | 格式 | 时间字段 | 本机数据 |
 |---|---|---|---|---|
 | kimi_code | `~/.kimi-code/sessions/wd_*/session_*/agents/main/wire.jsonl` | JSONL，16 种事件类型 | 毫秒 epoch（`time`/`createdAt`） | ✅ 6 会话 |
+| workbuddy | `~/.workbuddy/projects/<工作区>/<session-id>.jsonl` + `workbuddy.db`（标题） | JSONL（OpenAI Responses 风格） | `timestamp` 毫秒 epoch | ✅ 1 会话（09-14 活跃） |
+| 千问办公 qwen_work | `~/Library/Application Support/QwenWorkCN/data/agents.db` | SQLite（drizzle：chats/messages/projects） | 毫秒 epoch（待实测） | ❌ 零对话数据 |
+| 豆包 | IndexedDB LevelDB（只有会话标题列表，无正文无时间戳） | — | — | ❌ **不支持**（正文在服务端） |
 | zcode | `~/.zcode/cli/db/db.sqlite` + `cli/log/zcode-YYYY-MM-DD.jsonl` | SQLite+嵌套 JSON | 毫秒整数 | ✅ 1 会话 |
 | opencode | `~/.local/share/opencode/opencode.db` | SQLite+嵌套 JSON | `time_created` 毫秒 | ✅ 1 会话 |
 | cursor | `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb` | SQLite（composerHeaders + cursorDiskKV） | 毫秒 | ❌ 无实际对话 |
@@ -90,3 +93,5 @@
 ## 已知限制与待办（补充）
 - [ ] kimi 归并后单 session 可能超 `max_session_chars` 截断（session_4fc865a5 达 7.9 万字符）；主会话对子代理的引用摘要与子代理原文并存，靠 LLM 去重
 - [ ] cursor 子会话归并缺真实数据支撑（有 `isSubagent` 无关联字段）
+- [ ] qwen_work 时间戳单位未实测（毫秒假设，本机零数据）；projects/local_projects 两表并存目前只 join projects
+- [ ] workbuddy user 消息提取依赖 `<user_query>` 标签稳定存在（input_text 几乎全是 system-reminder 注入）；有新版本数据时复核

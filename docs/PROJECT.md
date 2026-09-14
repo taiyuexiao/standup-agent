@@ -57,6 +57,7 @@
 | 2026-09-13 | 新增 | 开源发布：GitHub 仓库 taiyuexiao/standup-agent（public，MIT）；README 重写为完整使用说明；推送前脱敏 scrub（sanitizer.md 中的真实密码案例改为泛化描述） | 全部 |
 | 2026-09-13 | 新增 | Windows/Linux 支持：定时任务三平台分发（launchd/crontab/schtasks）、collector 路径平台分支、README Windows 安装说明；47 测试全过（Windows/Linux 分支 mock 验证，未实机） | cli、collectors |
 | 2026-09-13 | 新增 | monthly 月报（聚合当月日报）+ Remainder 集成：remainder-sync 推送模块（幂等、未运行优雅跳过），与 Remainder M35 双侧端到端验证并部署到安装版（server dist + 重打包 .app）；60 测试全过 | summarizer、renderer、cli、remainder-sync |
+| 2026-09-14 | 新增 | workbuddy（JSONL 模式，真实数据验证 7 条）+ qwen_work（SQLite 模式，本机零数据容错+夹具）collector；豆包不支持（本地无对话正文）；64 测试全过 | collectors |
 
 ## 关键问题与解决
 - **「今日」语义**：用户既有今日新开的 session，也有老 session 今日续聊——过滤单位必须是消息级时间戳而非 session 创建时间
